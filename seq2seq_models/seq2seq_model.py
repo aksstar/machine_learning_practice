@@ -105,6 +105,7 @@ target_token_index = dict(
 encoder_input_data = np.zeros(
     (len(input_texts), max_encoder_seq_length, num_encoder_tokens),
     dtype='float32')
+print("ENCODER INPUT  == >> ",len(input_texts), max_encoder_seq_length, num_encoder_tokens)
 decoder_input_data = np.zeros(
     (len(input_texts), max_decoder_seq_length, num_decoder_tokens),
     dtype='float32')
@@ -115,8 +116,9 @@ decoder_target_data = np.zeros(
 for i, (input_text, target_text) in enumerate(zip(input_texts, target_texts)):
     for t, char in enumerate(input_text):
         encoder_input_data[i, t, input_token_index[char]] = 1.
-        
+    
     encoder_input_data[i, t + 1:, input_token_index[' ']] = 1.
+    
     for t, char in enumerate(target_text):
         # decoder_target_data is ahead of decoder_input_data by one timestep
         decoder_input_data[i, t, target_token_index[char]] = 1.
@@ -127,6 +129,8 @@ for i, (input_text, target_text) in enumerate(zip(input_texts, target_texts)):
     decoder_input_data[i, t + 1:, target_token_index[' ']] = 1.
     decoder_target_data[i, t:, target_token_index[' ']] = 1.
 
+import sys
+sys.exit(1)
 
 # Define an input sequence and process it.
 encoder_inputs = Input(shape=(None, num_encoder_tokens))
