@@ -109,11 +109,34 @@ input_token_index = model_param['input_token_index']
 # Take one sequence (part of the training set)
 # for trying out decoding.
 # input_seq = encoder_input_data[seq_index: seq_index + 1]
-for t, char in enumerate([1210, 1193, 1407, 3476, 3499]):
+
+import pandas as pd
+
+file = open('movies.dat')
+
+r_cols = ['movie_id', 'movie_name', 'movie_genre']
+metadata = pd.read_csv('movies.dat', sep='::', names=r_cols,
+                      encoding='latin-1', index_col='movie_id')
+
+
+input_list = [3359, 3768, 3812, 3846, 3763]
+print("Input is: ", )
+print(metadata[metadata.index.isin(input_list)])
+
+
+for t, char in enumerate(input_list):
     encoder_input_data[0, t, input_token_index[str(char)]] = 1.
 
 input_seq = encoder_input_data
 decoded_sentence = decode_sequence(input_seq)
 print('-')
-# print('Input sentence:', input_texts[seq_index])
+
 print('Decoded sentence:', decoded_sentence)
+
+output_list = list(filter(('<sos>').__ne__, decoded_sentence))
+
+print("decoded_sentence==>", decoded_sentence)
+
+
+print("Output is: ", )
+print(metadata[metadata.index.isin(output_list)])
