@@ -11,7 +11,7 @@ file = open('model_data.json')
 model_param = json.loads(file.read())
 
 # Restore the model and construct the encoder and decoder.
-model = load_model('s2s123.h5')
+model = load_model('s2smodel.h5')
 
 encoder_inputs = model.input[0]   # input_1
 encoder_outputs, state_h_enc, state_c_enc = model.layers[2].output   # lstm_1
@@ -43,9 +43,6 @@ reverse_target_char_index = dict(
 def decode_sequence(input_seq):
     # Encode the input as state vectors.
     states_value = encoder_model.predict(input_seq)
-
-    print("INPUT SEQUENCE IS -- >> ", input_seq)
-    print("STATES VALUE IS -- >> ", states_value)
 
     # Generate empty target sequence of length 1.
     target_seq = np.zeros((1, 1, model_param['num_decoder_tokens']))
@@ -86,7 +83,6 @@ encoder_input_data = np.zeros(
     (1, model_param['max_encoder_seq_length'], model_param['num_encoder_tokens']),
     dtype='float32')
 
-print("==========>>>>",encoder_input_data)
 input_token_index = model_param['input_token_index']
 
 # Take one sequence (part of the training set)
@@ -101,26 +97,28 @@ r_cols = ['movie_id', 'movie_name', 'movie_genre']
 metadata = pd.read_csv('movies.dat', sep='::', names=r_cols,
                       encoding='latin-1', index_col='movie_id')
 
-
-input_list = [3359, 3768,1,2,3]
+#input_list = [2858, 2355, 909, 1294, 3363]
+input_list = [260, 110, 3512, 3930,2953]
 print("Input is: ", )
-print(metadata[metadata.index.isin(input_list)])
+
+print(metadata.loc[input_list])
 
 
 for t, char in enumerate(input_list):
-    print("DATA IS : \n", t, input_token_index[str(char)])
     encoder_input_data[0, t, input_token_index[str(char)]] = 1.
 
 input_seq = encoder_input_data
 decoded_sentence = decode_sequence(input_seq)
 print('-')
 
-print('Decoded sentence:', decoded_sentence)
 
-output_list = list(filter(('<sos>').__ne__, decoded_sentence))
+output_list = list(filter(('<eos>').__ne__, decoded_sentence))
 
-print("decoded_sentence==>", decoded_sentence)
-
+new_list = []
+for item in output_list:
+    if int(item) in input_list or int(item) in new_list:
+        continue
+    new_list.append(int(item))
 
 print("Output is: ", )
-print(metadata[metadata.index.isin(output_list)])
+print(metadata.loc[new_list])
