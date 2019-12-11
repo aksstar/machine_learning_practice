@@ -10,26 +10,6 @@ latent_dim = 256  # Latent dimensionality of the encoding space.
 file = open('model_data.json')
 model_param = json.loads(file.read())
 
-# Define an input sequence and process it.
-encoder_inputs = Input(shape=(None, model_param['num_encoder_tokens']))
-encoder = LSTM(latent_dim, return_state=True)
-encoder_outputs, state_h, state_c = encoder(encoder_inputs)
-# We discard `encoder_outputs` and only keep the states.
-encoder_states = [state_h, state_c]
-
-
-
-decoder_inputs = Input(shape=(None, model_param['num_decoder_tokens']))
-# We set up our decoder to return full output sequences,
-# and to return internal states as well. We don't use the
-# return states in the training model, but we will use them in inference.
-decoder_lstm = LSTM(latent_dim, return_sequences=True, return_state=True)
-decoder_outputs, _, _ = decoder_lstm(decoder_inputs,
-                                     initial_state=encoder_states)
-decoder_dense = Dense(model_param['num_decoder_tokens'], activation='softmax')
-decoder_outputs = decoder_dense(decoder_outputs)
-
-
 # Restore the model and construct the encoder and decoder.
 model = load_model('s2s123.h5')
 
@@ -63,6 +43,9 @@ reverse_target_char_index = dict(
 def decode_sequence(input_seq):
     # Encode the input as state vectors.
     states_value = encoder_model.predict(input_seq)
+
+    print("INPUT SEQUENCE IS -- >> ", input_seq)
+    print("STATES VALUE IS -- >> ", states_value)
 
     # Generate empty target sequence of length 1.
     target_seq = np.zeros((1, 1, model_param['num_decoder_tokens']))
@@ -119,12 +102,13 @@ metadata = pd.read_csv('movies.dat', sep='::', names=r_cols,
                       encoding='latin-1', index_col='movie_id')
 
 
-input_list = [3359, 3768, 3812, 3846, 3763]
+input_list = [3359, 3768,1,2,3]
 print("Input is: ", )
 print(metadata[metadata.index.isin(input_list)])
 
 
 for t, char in enumerate(input_list):
+    print("DATA IS : \n", t, input_token_index[str(char)])
     encoder_input_data[0, t, input_token_index[str(char)]] = 1.
 
 input_seq = encoder_input_data

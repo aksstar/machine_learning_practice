@@ -19,7 +19,7 @@ target_characters = set()
 with open(data_path, 'r', encoding='utf-8') as f:
     lines = f.read().split('\n')
 for index,line in enumerate(lines):
-    print("LINE === >> ", line, type(line))
+    
     if index==0:
         continue
     
@@ -42,9 +42,6 @@ for index,line in enumerate(lines):
         if char not in target_characters:
             target_characters.add(char)
 
-
-print("Input characters == ?? ", input_characters)
-print("Output characters == ?? ", target_characters)
 
 input_characters = sorted(list(input_characters))
 target_characters = list(target_characters)
@@ -136,12 +133,4 @@ model.fit([encoder_input_data, decoder_input_data], decoder_target_data,
 
 # Save model
 model.save('s2s123.h5')
-
-# Next: inference mode (sampling).
-# Here's the drill:
-# 1) encode input and retrieve initial decoder state
-# 2) run one step of decoder with this initial state
-# and a "start of sequence" token as target.
-# Output will be the next target token
-# 3) Repeat with the current target token and current states
 
