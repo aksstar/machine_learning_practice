@@ -93,7 +93,7 @@ for i, (input_text, target_text) in enumerate(zip(input_texts, target_texts)):
 
 # Define an input sequence and process it.
 encoder_inputs = Input(shape=(None, num_encoder_tokens))
-encoder = LSTM(latent_dim, return_state=True)
+encoder = LSTM(latent_dim, return_state=True, dropout=0.2)
 encoder_outputs, state_h, state_c = encoder(encoder_inputs)
 # We discard `encoder_outputs` and only keep the states.
 encoder_states = [state_h, state_c]
@@ -122,12 +122,14 @@ file = open('model_data.json','w+')
 file.write(json.dumps(model_data))
 
 # Run training
-model.compile(optimizer='rmsprop', loss='categorical_crossentropy',
+model.compile(optimizer='adam', loss='categorical_crossentropy',
               metrics=['accuracy'])
+              
 model.fit([encoder_input_data, decoder_input_data], decoder_target_data,
           batch_size=batch_size,
           epochs=epochs,
-          validation_split=0.2)
+          validation_split=0.2,
+          )
 
 
 
